@@ -1,0 +1,158 @@
+# Documentation: Currency Conversion & Salary Management System
+
+## Overview
+This Node.js application automates the process of:
+1. Reading employee data from an Excel file.
+2. Converting salaries into a target currency using the ExchangeRate API.
+3. Calculating local time based on the employee’s country.
+4. Storing results in both Excel/JSON files and a MySQL database.
+
+This makes it useful for global teams where payroll and reporting involve multiple currencies and time zones.
+
+---
+
+## Technologies Used
+- Node.js – Core runtime environment.
+- xlsx – Reading and writing Excel files.
+- moment-timezone – Handling country-specific local times.
+- node-fetch – Fetching exchange rates from the ExchangeRate API.
+- mysql2 – MySQL database connection and queries.
+- fs – File system operations (saving JSON/Excel).
+- readline – Capturing user input from the console.
+
+---
+
+## Project Workflow
+1. Database Connection – Connects to MySQL database.
+2. Excel File Handling – Reads employee details from `apiPractice.xlsx`.
+3. User Input – Asks user for a target currency (USD, INR, EUR, etc.).
+4. Salary Conversion – Uses ExchangeRate API to convert salaries.
+5. Local Time Calculation – Gets time from country → timezone mapping.
+6. Data Persistence – Saves results to Excel, JSON, and MySQL.
+
+---
+
+## Key Components
+
+### Country → Timezone Mapping
+Ensures local time is correctly computed per country. Defaults to UTC if not found.
+
+### Excel Processing
+Reads input Excel → JSON → converts → saves back to Excel/JSON.
+
+### Salary Conversion
+- If currency = target → keep same value.
+- Else → convert using API-provided exchange rates.
+
+### Database Insertion
+Inserts employee data into `incomesfreelance` table with salary + local time.
+
+---
+
+## Expected Output
+
+### Console
+```
+✅ Connected to MySQL Database
+Enter target currency (e.g., INR, USD, EUR): usd
+
+✅ Results saved to:
+📄 apiPractice_converted.xlsx
+📄 apiPractice_converted.json
+💾 Results inserted into MySQL database.
+```
+
+### Files Generated
+- Excel: `apiPractice_converted.xlsx`
+- JSON: `apiPractice_converted.json`
+
+### Database Table (incomesfreelance)
+| name | company | emp_id | age | salary | currency | country | target_currency | converted_salary | local_time |
+
+---
+
+## Error Handling
+- ❌ Missing Excel file → program exits.
+- ❌ Empty sheet → program exits.
+- ⚠ Missing employee fields → row skipped.
+- ❌ No exchange rate found → error thrown.
+- ❌ MySQL insert errors logged.
+
+---
+
+## Future Improvements
+- Dynamic timezone lookup instead of hardcoded mapping.
+- Support multiple sheets in Excel.
+- Batch API requests for performance.
+- Add unit tests.
+- GUI interface for non-technical users.
+
+---
+
+## Block Diagram
+
+Program flow is represented below:
+
+ ┌─────────────────────────┐
+ │       Start Program      │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │  Connect to MySQL DB    │
+ │  (currency_database_*)  │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │   Load Excel File        │
+ │   (apiPractice.xlsx)     │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │   Read Employee Data     │
+ │   (JSON from Excel)      │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │   Ask User for Target    │
+ │   Currency (e.g., USD)   │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │ Fetch Exchange Rates     │
+ │ from API (ExchangeRate)  │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │ For Each Employee:       │
+ │ - Validate row           │
+ │ - Convert Salary         │
+ │ - Get Local Time (TZ)    │
+ │ - Build Result Row       │
+ │ - Insert into MySQL      │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │ Save Results to:         │
+ │ - Excel File (.xlsx)     │
+ │ - JSON File (.json)      │
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │ Display Summary in CLI   │
+ │ (files saved + DB status)│
+ └───────────┬─────────────┘
+             │
+             ▼
+ ┌─────────────────────────┐
+ │       End Program        │
+ └─────────────────────────┘
+
+---
